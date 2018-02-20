@@ -3,10 +3,10 @@ from k_means import *
 import random
 
 
-def read_data():
+def read_data(file_name):
     data = []
-    with open("HW3_Data.txt", "r") as dataFile:
-        for line in dataFile:
+    with open(file_name, "r") as data_file:
+        for line in data_file:
             split_line = line.split()
             if split_line[0] != "HeatMiser_ID":
                 data.append(split_line)
@@ -93,7 +93,7 @@ def split_fold(data, fold):
 
 
 def main():
-    data = read_data()
+    data = read_data("HW3_Data.txt")
     speed_categories, distance_categories, location_categories = bin_data(data)
     categories = [0, speed_categories, distance_categories, location_categories]
     random.shuffle(data)
@@ -104,7 +104,7 @@ def main():
         root = make_decision_tree(learning_data, categories)
         test_tree(test_data, root)
 
-    data = read_data()
+    data = read_data("HW3_Data.txt")
     random.shuffle(data)
 
     for fold in range(10):

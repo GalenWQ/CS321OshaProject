@@ -12,8 +12,8 @@ def centroid(cluster):
     distances = 0
     speeds = 0
     for instance in cluster:
-        distances += float(instance[0])
-        speeds += float(instance[1])
+        distances += float(instance[1])
+        speeds += float(instance[2])
 
     avgDistance = distances / len(cluster)
     avgSpeed = speeds / len(cluster)
@@ -39,6 +39,7 @@ def build_clusters(data):
 
         closest_cluster = 0
         smallest_distance = 1000
+
         for cluster in clusters:
             centroid_distance = euclidean_distance(centroid(cluster), (distance, speed))
             if centroid_distance < smallest_distance:
@@ -46,6 +47,34 @@ def build_clusters(data):
                 closest_cluster = clusters.index(cluster)
 
         clusters[closest_cluster].append(item)
+
+    done = False
+    loops = 0
+
+    while not done:
+        done = True
+        loops += 1
+        for cluster in clusters:
+            for item in cluster:
+                distance = float(item[1])
+                speed = float(item[2])
+
+                cur_centroid_distance = euclidean_distance(centroid(cluster), (distance, speed))
+                cur_cluster = cluster
+
+                for comp_cluster in clusters:
+                    centroid_distance = euclidean_distance(centroid(comp_cluster), (distance, speed))
+                    if centroid_distance < cur_centroid_distance:
+                        cur_centroid_distance = centroid_distance
+                        cur_cluster = comp_cluster
+
+                if cur_cluster != cluster:
+                    cluster.remove(item)
+                    cur_cluster.append(item)
+                    done = False
+
+        if loops > 20:
+            done = True
 
     return clusters
 
