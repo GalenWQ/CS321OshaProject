@@ -92,8 +92,7 @@ def binData(data):
         else:
             entry[2] = '>70'
 
-    return ['Short', 'Long'], ['<10', '<20', '<30', '<40', '<50', '<60',
-                               '<70', '>70'], ['Office', 'Warehouse']
+    return ['Short', 'Long'], ['<10', '<20', '<30', '<40', '<50', '<60', '<70', '>70'], ['Office', 'Warehouse']
 
 def splitFold(data, fold):
     testData = []
@@ -303,6 +302,26 @@ def testTree(testData, root):
 
     return correct, incorrect
 
+def makeDecisionTree(learningData, categories):
+    entropy = calculateEntropy(learningData)
+
+    nextColumn = findNextColumn(learningData, entropy)
+    root = Node(nextColumn)
+
+    addBranches(learningData, root, 1, categories)
+
+    # printTree(root, 0)
+
+    return root
+
+def testDecisionTree(testData, root):
+    correct, incorrect = testTree(testData, root)
+    majorityCount = findBaseline(testData)
+
+    print("majority count:", majorityCount)
+    print("correct percentage:", correct / (correct + incorrect))
+    print("________________________________________________________")
+
 def main():
     data = readData()
     speedCategories, distanceCategories, locationCategories = binData(data)
@@ -312,21 +331,11 @@ def main():
     for fold in range(10):
         testData, learningData = splitFold(data, fold)
 
-        entropy = calculateEntropy(learningData)
+        root = makeDecisionTree(learningData, categories)
+        testDecisionTree(testData, root)
 
-        nextColumn = findNextColumn(learningData, entropy)
-        root = Node(nextColumn)
 
-        addBranches(learningData, root, 1, categories)
 
-        #printTree(root, 0)
-
-        correct, incorrect = testTree(testData, root)
-        majorityCount = findBaseline(testData)
-
-        print("majority count:", majorityCount)
-        print("correct percentage:", correct / (correct + incorrect))
-        print("________________________________________________________")
 
 
 if __name__ == '__main__':
