@@ -300,7 +300,11 @@ def testTree(testData, root):
         else:
             incorrect += 1
 
-    return correct, incorrect
+    majorityCount = findBaseline(testData)
+
+    print("majority count:", majorityCount)
+    print("correct percentage:", correct / (correct + incorrect))
+    print("________________________________________________________")
 
 def makeDecisionTree(learningData, categories):
     entropy = calculateEntropy(learningData)
@@ -314,14 +318,6 @@ def makeDecisionTree(learningData, categories):
 
     return root
 
-def testDecisionTree(testData, root):
-    correct, incorrect = testTree(testData, root)
-    majorityCount = findBaseline(testData)
-
-    print("majority count:", majorityCount)
-    print("correct percentage:", correct / (correct + incorrect))
-    print("________________________________________________________")
-
 def main():
     data = readData()
     speedCategories, distanceCategories, locationCategories = binData(data)
@@ -332,7 +328,7 @@ def main():
         testData, learningData = splitFold(data, fold)
 
         root = makeDecisionTree(learningData, categories)
-        testDecisionTree(testData, root)
+        testTree(testData, root)
 
 
 
