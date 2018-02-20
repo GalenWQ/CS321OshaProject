@@ -1,5 +1,4 @@
 import math
-import random
 
 
 class Node:
@@ -10,16 +9,16 @@ class Node:
         self.value = value
         self.children = []
 
-    def addChild(self, child):
+    def add_child(self, child):
         self.children.append(child)
         child.parent = self
 
-    def addPossibleChildren(self, categories):
+    def add_possible_children(self, categories):
         column = self.value
 
         for feature in categories[column]:
             child = Node(feature)
-            self.addChild(child)
+            self.add_child(child)
 
     def __str__(self):
         return str(self.value)
@@ -37,104 +36,104 @@ def H(vals):
     return -1 * acc
 
 
-def findBaseline(data):
-    safeCount = 0
-    compliantCount = 0
-    nonCompliantCount = 0
+def find_baseline(data):
+    safe_count = 0
+    compliant_count = 0
+    non_compliant_count = 0
 
     for entry in data:
         if entry[4] == 'Safe':
-            safeCount += 1
+            safe_count += 1
         elif entry[4] == 'Compliant':
-            compliantCount += 1
+            compliant_count += 1
         elif entry[4] == 'NonCompliant' or entry[4] == 'Non-Compliant':
-            nonCompliantCount += 1
+            non_compliant_count += 1
         else:
             print("ERROR: incorrectly formatted compliance value", entry[4])
             quit()
 
-    total = safeCount + compliantCount + nonCompliantCount
-    safePercent = safeCount / total
-    compliantPercent = compliantCount / total
-    nonCompliantPercent = nonCompliantCount / total
+    total = safe_count + compliant_count + non_compliant_count
+    safe_percent = safe_count / total
+    compliant_percent = compliant_count / total
+    non_compliant_percent = non_compliant_count / total
 
-    return max(safePercent, compliantPercent, nonCompliantPercent)
+    return max(safe_percent, compliant_percent, non_compliant_percent)
 
 
-def itemInScope(node, item):
-    curNode = node
-    while curNode is not None:
+def item_in_scope(node, item):
+    cur_node = node
+    while cur_node is not None:
         feature = node.value
         column = node.parent.value
         if item[column] != feature:
             return False
         else:
-            curNode = curNode.parent.parent
+            cur_node = cur_node.parent.parent
 
     return True
 
 
-def columnInScope(node, column):
-    curNode = node
-    while curNode is not None:
-        nextColumn = curNode.parent.value
-        if column == nextColumn:
+def column_in_scope(node, column):
+    cur_node = node
+    while cur_node is not None:
+        next_column = cur_node.parent.value
+        if column == next_column:
             return False
         else:
-            curNode = curNode.parent.parent
+            cur_node = cur_node.parent.parent
 
     return True
 
 
 def calculateEntropy(data, node=None):
-    safeCount = 0
-    compliantCount = 0
-    nonCompliantCount = 0
+    safe_count = 0
+    compliant_count = 0
+    non_compliant_count = 0
 
     for entry in data:
-        if itemInScope(node, entry):
+        if item_in_scope(node, entry):
             if entry[4] == 'Safe':
-                safeCount += 1
+                safe_count += 1
             elif entry[4] == 'Compliant':
-                compliantCount += 1
+                compliant_count += 1
             elif entry[4] == 'NonCompliant' or entry[4] == 'Non-Compliant':
-                nonCompliantCount += 1
+                non_compliant_count += 1
 
-    entropy = H([safeCount, compliantCount, nonCompliantCount])
+    entropy = H([safe_count, compliant_count, non_compliant_count])
 
     return entropy
 
 
-def calculateBestGuess(data, node):
-    safeCount = 0
-    compliantCount = 0
-    nonCompliantCount = 0
+def calculate_best_guess(data, node):
+    safe_count = 0
+    compliant_count = 0
+    non_compliant_count = 0
 
     for entry in data:
-        if itemInScope(node, entry):
+        if item_in_scope(node, entry):
             if entry[4] == 'Safe':
-                safeCount += 1
+                safe_count += 1
             elif entry[4] == 'Compliant':
-                compliantCount += 1
+                compliant_count += 1
             elif entry[4] == 'NonCompliant' or entry[4] == 'Non-Compliant':
-                nonCompliantCount += 1
+                non_compliant_count += 1
 
-    maximum = max(safeCount, compliantCount, nonCompliantCount)
+    maximum = max(safe_count, compliant_count, non_compliant_count)
 
-    if maximum == safeCount:
+    if maximum == safe_count:
         return 'Safe'
-    elif maximum == compliantCount:
+    elif maximum == compliant_count:
         return 'Compliant'
     else:
         return 'NonCompliant'
 
 
-def findInfoGain(data, baselineEntropy, column, node=None):
+def find_info_gain(data, baseline_entropy, column, node=None):
     matrix = []
 
     possibilities = []
     for item in data:
-        if itemInScope(node, item):
+        if item_in_scope(node, item):
             if item[column] not in possibilities:
                 possibilities.append(item[column])
 
@@ -159,88 +158,88 @@ def findInfoGain(data, baselineEntropy, column, node=None):
         entropy += prob * H([matrix[index][0], matrix[index][1], matrix[index][
             2]])
 
-    return baselineEntropy - entropy
+    return baseline_entropy - entropy
 
 
-def findInfoGains(data, entropy, node=None):
-    infoGains = [0]
+def find_info_gains(data, entropy, node=None):
+    info_gains = [0]
 
     for column in range(1, 4):
-        if columnInScope(node, column):
-            infoGain = findInfoGain(data, entropy, column, node)
-            infoGains.append(infoGain)
+        if column_in_scope(node, column):
+            info_gain = find_info_gain(data, entropy, column, node)
+            info_gains.append(info_gain)
         else:
-            infoGains.append(0)
+            info_gains.append(0)
 
-    return infoGains
-
-
-def findNextColumn(data, entropy, node=None):
-    infoGains = findInfoGains(data, entropy, node)
-    maxInfoGain = max(infoGains)
-    nextColumn = infoGains.index(maxInfoGain)
-
-    return nextColumn
+    return info_gains
 
 
-def addBranches(data, root, depth, categories):
-    root.addPossibleChildren(categories)
+def find_next_column(data, entropy, node=None):
+    info_gains = find_info_gains(data, entropy, node)
+    max_info_gain = max(info_gains)
+    next_column = info_gains.index(max_info_gain)
+
+    return next_column
+
+
+def add_branches(data, root, depth, categories):
+    root.add_possible_children(categories)
 
     for node in root.children:
         entropy = calculateEntropy(data, node)
 
         if entropy == 0 or depth > 2:
-            result = calculateBestGuess(data, node)
+            result = calculate_best_guess(data, node)
             child = Node(result)
-            node.addChild(child)
+            node.add_child(child)
         else:
-            nextColumn = findNextColumn(data, entropy, node)
+            next_column = find_next_column(data, entropy, node)
 
-            child = Node(nextColumn)
-            node.addChild(child)
-            addBranches(data, child, depth + 1, categories)
+            child = Node(next_column)
+            node.add_child(child)
+            add_branches(data, child, depth + 1, categories)
 
 
-def printTree(root, indent):
+def print_tree(root, indent):
     print("\t" * indent, root)
     if root:
         for child in root.children:
-            printTree(child, indent + 1)
+            print_tree(child, indent + 1)
 
 
-def testTree(testData, root):
+def test_tree(test_data, root):
     correct = 0
     incorrect = 0
 
-    for item in testData:
-        curNode = root
+    for item in test_data:
+        cur_node = root
 
-        while curNode.children:
-            category = item[curNode.value]
-            for child in curNode.children:
+        while cur_node.children:
+            category = item[cur_node.value]
+            for child in cur_node.children:
                 if category == child.value:
-                    curNode = child.children[0]
+                    cur_node = child.children[0]
 
-        prediction = curNode.value
+        prediction = cur_node.value
         if prediction == item[4]:
             correct += 1
         else:
             incorrect += 1
 
-    majorityCount = findBaseline(testData)
+    majority_count = find_baseline(test_data)
 
-    print("majority count:", majorityCount)
+    print("majority count:", majority_count)
     print("correct percentage:", correct / (correct + incorrect))
     print('-----------------------')
 
 
-def makeDecisionTree(learningData, categories):
-    entropy = calculateEntropy(learningData)
+def make_decision_tree(learning_data, categories):
+    entropy = calculateEntropy(learning_data)
 
-    nextColumn = findNextColumn(learningData, entropy)
-    root = Node(nextColumn)
+    next_column = find_next_column(learning_data, entropy)
+    root = Node(next_column)
 
-    addBranches(learningData, root, 1, categories)
+    add_branches(learning_data, root, 1, categories)
 
     # printTree(root, 0)
 
