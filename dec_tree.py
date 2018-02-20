@@ -227,7 +227,11 @@ def testTree(testData, root):
         else:
             incorrect += 1
 
-    return correct, incorrect
+    majorityCount = findBaseline(testData)
+
+    print("majority count:", majorityCount)
+    print("correct percentage:", correct / (correct + incorrect))
+    print('-----------------------')
 
 
 def makeDecisionTree(learningData, categories):
@@ -241,12 +245,3 @@ def makeDecisionTree(learningData, categories):
     # printTree(root, 0)
 
     return root
-
-
-def testDecisionTree(testData, root):
-    correct, incorrect = testTree(testData, root)
-    majorityCount = findBaseline(testData)
-
-    print("majority count:", majorityCount)
-    print("correct percentage:", correct / (correct + incorrect))
-    print("________________________________________________________")

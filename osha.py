@@ -97,7 +97,7 @@ def main():
         testData, learningData = splitFold(data, fold)
 
         root = makeDecisionTree(learningData, categories)
-        testDecisionTree(testData, root)
+        testTree(testData, root)
 
 
 if __name__ == '__main__':
