@@ -2,6 +2,8 @@ import math
 import random
 
 class Node:
+    """A class representing a node in the decision tree."""
+
     def __init__(self, value):
         self.parent = None
         self.value = value
@@ -11,14 +13,12 @@ class Node:
         self.children.append(child)
         child.parent = self
 
-    def addChildrenByColumn(self, data):
+    def addPossibleChildren(self, categories):
         column = self.value
-        done = []
-        for item in data:
-            if item[column] not in done:
-                child = Node(item[column])
-                self.addChild(child)
-                done.append(item[column])
+
+        for feature in categories[column]:
+            child = Node(feature)
+            self.addChild(child)
 
     def __str__(self):
         return str(self.value)
@@ -33,16 +33,16 @@ def readData():
 
     return data
 
-def findMax(data, column):
-    max = 0
-    for item in data:
-        val = float(item[column])
-        if val > max:
-            max = val
+# def findMax(data, column):
+#     max = 0
+#     for item in data:
+#         val = float(item[column])
+#         if val > max:
+#             max = val
+#
+#     return max
 
-    return max
-
-def binData(data, distanceBins, speedBins):
+def binData(data):
     # maxDistance = int(findMax(data, 1)) + 1
     #
     # while maxDistance % distanceBins != 0:
@@ -70,14 +70,10 @@ def binData(data, distanceBins, speedBins):
         #         entry[2] = "<" + str(i)
         #         break
 
-        if float(entry[1]) < 50:
-            entry[1] = '<50'
-        elif float(entry[1]) < 100:
-            entry[1] = '<100'
-        elif float(entry[1]) < 150:
-            entry[1] = '<150'
+        if float(entry[1]) < 100:
+            entry[1] = 'Short'
         else:
-            entry[1] = '>150'
+            entry[1] = 'Long'
 
         if int(entry[2]) < 10:
             entry[2] = '<10'
@@ -95,6 +91,9 @@ def binData(data, distanceBins, speedBins):
             entry[2] = '<70'
         else:
             entry[2] = '>70'
+
+    return ['Short', 'Long'], ['<10', '<20', '<30', '<40', '<50', '<60',
+                               '<70', '>70'], ['Office', 'Warehouse']
 
 def splitFold(data, fold):
     testData = []
@@ -260,8 +259,8 @@ def findNextColumn(data, entropy, node=None):
 
     return nextColumn
 
-def addBranches(data, root, depth):
-    root.addChildrenByColumn(data)
+def addBranches(data, root, depth, categories):
+    root.addPossibleChildren(categories)
 
     for node in root.children:
         entropy = calculateEntropy(data, node)
@@ -275,7 +274,7 @@ def addBranches(data, root, depth):
 
             child = Node(nextColumn)
             node.addChild(child)
-            addBranches(data, child, depth + 1)
+            addBranches(data, child, depth + 1, categories)
 
 def printTree(root, indent):
     print("\t" * indent, root)
@@ -306,7 +305,8 @@ def testTree(testData, root):
 
 def main():
     data = readData()
-    binData(data, 2, 9)
+    speedCategories, distanceCategories, locationCategories = binData(data)
+    categories = [0, speedCategories, distanceCategories, locationCategories]
     random.shuffle(data)
 
     for fold in range(10):
@@ -317,7 +317,7 @@ def main():
         nextColumn = findNextColumn(learningData, entropy)
         root = Node(nextColumn)
 
-        addBranches(learningData, root, 1)
+        addBranches(learningData, root, 1, categories)
 
         #printTree(root, 0)
 
