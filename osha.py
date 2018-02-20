@@ -2,15 +2,17 @@ from dec_tree import *
 from k_means import *
 import random
 
-def readData():
+
+def read_data():
     data = []
     with open("HW3_Data.txt", "r") as dataFile:
         for line in dataFile:
-            splitLine = line.split()
-            if splitLine[0] != "HeatMiser_ID":
-                data.append(splitLine)
+            split_line = line.split()
+            if split_line[0] != "HeatMiser_ID":
+                data.append(split_line)
 
     return data
+
 
 # def findMax(data, column):
 #     max = 0
@@ -21,7 +23,7 @@ def readData():
 #
 #     return max
 
-def binData(data):
+def bin_data(data):
     # maxDistance = int(findMax(data, 1)) + 1
     #
     # while maxDistance % distanceBins != 0:
@@ -73,43 +75,42 @@ def binData(data):
 
     return ['Short', 'Long'], ['<10', '<20', '<30', '<40', '<50', '<60', '<70', '>70'], ['Office', 'Warehouse']
 
-def splitFold(data, fold):
-    testData = []
-    learningData = []
 
-    lowerBound = (fold * len(data)) / 10
-    upperBound = ((fold + 1) * len(data)) / 10
+def split_fold(data, fold):
+    test_data = []
+    learning_data = []
+
+    lower_bound = (fold * len(data)) / 10
+    upper_bound = ((fold + 1) * len(data)) / 10
 
     for entry in data:
-        if lowerBound <= data.index(entry) < upperBound:
-            testData.append(entry)
+        if lower_bound <= data.index(entry) < upper_bound:
+            test_data.append(entry)
         else:
-            learningData.append(entry)
+            learning_data.append(entry)
 
-    return testData, learningData
+    return test_data, learning_data
 
 
 def main():
-    data = readData()
-    random.shuffle(data)
-
-    speedCategories, distanceCategories, locationCategories = binData(data)
-    categories = [0, speedCategories, distanceCategories, locationCategories]
-
-    for fold in range(10):
-        testData, learningData = splitFold(data, fold)
-
-        root = makeDecisionTree(learningData, categories)
-
-        testTree(testData, root)
-
-    data = readData()
+    data = read_data()
+    speed_categories, distance_categories, location_categories = bin_data(data)
+    categories = [0, speed_categories, distance_categories, location_categories]
     random.shuffle(data)
 
     for fold in range(10):
-        testData, learningData = splitFold(data, fold)
+        test_data, learning_data = split_fold(data, fold)
 
-        clusters = build_clusters(learningData)
+        root = make_decision_tree(learning_data, categories)
+        test_tree(test_data, root)
+
+    data = read_data()
+    random.shuffle(data)
+
+    for fold in range(10):
+        test_data, learning_data = split_fold(data, fold)
+
+        clusters = build_clusters(learning_data)
         print(clusters)
 
 
