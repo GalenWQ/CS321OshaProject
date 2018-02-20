@@ -33,21 +33,51 @@ def readData():
 
     return data
 
-def binData(data):
-    for entry in data:
-        if float(entry[1]) > 100:
-            entry[1] = 'Long'
-        else:
-            entry[1] = 'Short'
+def findMax(data, column):
+    max = 0
+    for item in data:
+        val = float(item[column])
+        if val > max:
+            max = val
 
-        # if float(entry[1]) < 50:
-        #     entry[1] = '<50'
-        # elif float(entry[1]) < 100:
-        #     entry[1] = '<100'
-        # elif float(entry[1]) < 150:
-        #     entry[1] = '<150'
-        # else:
-        #     entry[1] = '>150'
+    return max
+
+def binData(data, distanceBins, speedBins):
+    # maxDistance = int(findMax(data, 1)) + 1
+    #
+    # while maxDistance % distanceBins != 0:
+    #     maxDistance += 1
+    #
+    # distanceSplit = maxDistance / distanceBins
+    #
+    # maxSpeed = int(findMax(data, 2)) + 1
+    #
+    # while maxSpeed % speedBins != 0:
+    #     maxSpeed += 1
+    #
+    # speedSplit = maxSpeed / speedBins
+
+    for entry in data:
+        # for i in range(int(distanceSplit), int(maxDistance) + 1,
+        #                int(distanceSplit)):
+        #     if float(entry[1]) <= i:
+        #         entry[1] = "<" + str(i)
+        #         break
+        #
+        # for i in range(int(speedSplit), int(maxSpeed) + 1,
+        #                int(speedSplit)):
+        #     if float(entry[2]) <= i:
+        #         entry[2] = "<" + str(i)
+        #         break
+
+        if float(entry[1]) < 50:
+            entry[1] = '<50'
+        elif float(entry[1]) < 100:
+            entry[1] = '<100'
+        elif float(entry[1]) < 150:
+            entry[1] = '<150'
+        else:
+            entry[1] = '>150'
 
         if int(entry[2]) < 10:
             entry[2] = '<10'
@@ -66,7 +96,20 @@ def binData(data):
         else:
             entry[2] = '>70'
 
-    return data
+def splitFold(data, fold):
+    testData = []
+    learningData = []
+
+    lowerBound = (fold * len(data)) / 10
+    upperBound = ((fold + 1) * len(data)) / 10
+
+    for entry in data:
+        if lowerBound <= data.index(entry) < upperBound:
+            testData.append(entry)
+        else:
+            learningData.append(entry)
+
+    return testData, learningData
 
 def H(vals):
     total = sum(vals)
@@ -102,28 +145,28 @@ def findBaseline(data):
 
     return max(safePercent, compliantPercent, nonCompliantPercent)
 
-def checkEntry(node, entry):
+def itemInScope(node, item):
     curNode = node
     while curNode is not None:
-        category = node.value
+        feature = node.value
         column = node.parent.value
-        if entry[column] != category:
+        if item[column] != feature:
             return False
         else:
             curNode = curNode.parent.parent
 
     return True
 
-def checkColumn(node, column):
+def columnInScope(node, column):
     curNode = node
     while curNode is not None:
         nextColumn = curNode.parent.value
         if column == nextColumn:
-            return True
+            return False
         else:
             curNode = curNode.parent.parent
 
-    return False
+    return True
 
 def calculateEntropy(data, node=None):
     safeCount = 0
@@ -131,7 +174,7 @@ def calculateEntropy(data, node=None):
     nonCompliantCount = 0
 
     for entry in data:
-        if checkEntry(node, entry):
+        if itemInScope(node, entry):
             if entry[4] == 'Safe':
                 safeCount += 1
             elif entry[4] == 'Compliant':
@@ -149,7 +192,7 @@ def calculateBestGuess(data, node):
     nonCompliantCount = 0
 
     for entry in data:
-        if checkEntry(node, entry):
+        if itemInScope(node, entry):
             if entry[4] == 'Safe':
                 safeCount += 1
             elif entry[4] == 'Compliant':
@@ -171,7 +214,7 @@ def findInfoGain(data, baselineEntropy, column, node=None):
 
     possibilities = []
     for item in data:
-        if checkEntry(node, item):
+        if itemInScope(node, item):
             if item[column] not in possibilities:
                 possibilities.append(item[column])
 
@@ -189,8 +232,8 @@ def findInfoGain(data, baselineEntropy, column, node=None):
 
     entropy = 0
 
-    for category in possibilities:
-        index = possibilities.index(category)
+    for feature in possibilities:
+        index = possibilities.index(feature)
         num = sum(matrix[index])
         prob = num / len(data)
         entropy += prob * H([matrix[index][0], matrix[index][1], matrix[index][
@@ -198,53 +241,41 @@ def findInfoGain(data, baselineEntropy, column, node=None):
 
     return baselineEntropy - entropy
 
-def findInfoGains(data, baselineEntropy, node=None):
+def findInfoGains(data, entropy, node=None):
     infoGains = [0]
 
     for column in range(1, 4):
-        if not checkColumn(node, column):
-            infoGain = findInfoGain(data, baselineEntropy,
-                                    column, node)
+        if columnInScope(node, column):
+            infoGain = findInfoGain(data, entropy, column, node)
             infoGains.append(infoGain)
         else:
             infoGains.append(0)
 
     return infoGains
 
-def splitFold(data, fold):
-    testData = []
-    learningData = []
+def findNextColumn(data, entropy, node=None):
+    infoGains = findInfoGains(data, entropy, node)
+    maxInfoGain = max(infoGains)
+    nextColumn = infoGains.index(maxInfoGain)
 
-    lowerBound = (fold * len(data)) / 10
-    upperBound = ((fold + 1) * len(data)) / 10
-
-    for entry in data:
-        if lowerBound <= data.index(entry) < upperBound:
-            testData.append(entry)
-        else:
-            learningData.append(entry)
-
-    return testData, learningData
+    return nextColumn
 
 def addBranches(data, root, depth):
+    root.addChildrenByColumn(data)
+
     for node in root.children:
-        if node.value != 'LEAF':
-            entropy = calculateEntropy(data, node)
-            if entropy == 0 or depth > 2:
-                result = calculateBestGuess(data, node)
-                child = Node(result)
-                node.addChild(child)
-            else:
-                infoGains = findInfoGains(data, entropy, node)
-                maxInfoGain = max(infoGains)
-                nextColumn = infoGains.index(maxInfoGain)
+        entropy = calculateEntropy(data, node)
 
-                child = Node(nextColumn)
-                node.addChild(child)
-                child.addChildrenByColumn(data)
+        if entropy == 0 or depth > 2:
+            result = calculateBestGuess(data, node)
+            child = Node(result)
+            node.addChild(child)
+        else:
+            nextColumn = findNextColumn(data, entropy, node)
 
-            for child in node.children:
-                addBranches(data, child, depth + 1)
+            child = Node(nextColumn)
+            node.addChild(child)
+            addBranches(data, child, depth + 1)
 
 def printTree(root, indent):
     print("\t" * indent, root)
@@ -275,27 +306,23 @@ def testTree(testData, root):
 
 def main():
     data = readData()
-    binData(data)
+    binData(data, 2, 9)
     random.shuffle(data)
 
     for fold in range(10):
         testData, learningData = splitFold(data, fold)
 
-        majorityCount = findBaseline(learningData)
         entropy = calculateEntropy(learningData)
 
-        infoGains = findInfoGains(learningData, entropy)
-        maxInfoGain = max(infoGains)
-        nextColumn = infoGains.index(maxInfoGain)
+        nextColumn = findNextColumn(learningData, entropy)
         root = Node(nextColumn)
-
-        root.addChildrenByColumn(learningData)
 
         addBranches(learningData, root, 1)
 
-        # printTree(root, 0)
+        #printTree(root, 0)
 
         correct, incorrect = testTree(testData, root)
+        majorityCount = findBaseline(testData)
 
         print("majority count:", majorityCount)
         print("correct percentage:", correct / (correct + incorrect))
