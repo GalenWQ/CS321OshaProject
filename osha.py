@@ -1,4 +1,6 @@
 from dec_tree import *
+from k_means import *
+import random
 
 def readData():
     data = []
@@ -89,15 +91,26 @@ def splitFold(data, fold):
 
 def main():
     data = readData()
+    random.shuffle(data)
+
     speedCategories, distanceCategories, locationCategories = binData(data)
     categories = [0, speedCategories, distanceCategories, locationCategories]
-    random.shuffle(data)
 
     for fold in range(10):
         testData, learningData = splitFold(data, fold)
 
         root = makeDecisionTree(learningData, categories)
+
         testTree(testData, root)
+
+    data = readData()
+    random.shuffle(data)
+
+    for fold in range(10):
+        testData, learningData = splitFold(data, fold)
+
+        clusters = build_clusters(learningData)
+        print(clusters)
 
 
 if __name__ == '__main__':
