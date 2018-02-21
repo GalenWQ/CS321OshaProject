@@ -319,7 +319,7 @@ def test_tree(test_data, root):
             'compliant_precision':compliant_precision, 'compliant_recall':compliant_recall, 'compliant_f1':compliant_f1,
             'noncompliant_precision': noncompliant_precision, 'noncompliant_recall': noncompliant_recall,
             'noncompliant_f1': noncompliant_f1, 'average_precision':average_precision, 'average_recall':average_recall,
-            'average_f1':average_f1, 'overall_precision':overall_precision}
+            'average_f1':average_f1, 'overall_precision':overall_precision, 'majority_count':majority_count}
 
 
 def make_decision_tree(learning_data, categories):

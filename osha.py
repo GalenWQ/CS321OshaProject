@@ -1,6 +1,4 @@
-from dec_tree import *
 from k_means import *
-import random
 import random
 
 from dec_tree import (make_decision_tree, test_tree)
@@ -110,11 +108,11 @@ def main():
     # root = make_decision_tree(learning_data, categories)
     # test_tree(test_data, root)
 
-    average_results = {'safe_precision':0, 'safe_recall':0, 'safe_f1':0,
-            'compliant_precision':0, 'compliant_recall':0, 'compliant_f1':0,
-            'noncompliant_precision': 0, 'noncompliant_recall': 0,
-            'noncompliant_f1': 0, 'average_precision':0, 'average_recall':0,
-            'average_f1':0, 'overall_precision':0}
+    average_results = {'safe_precision': 0, 'safe_recall': 0, 'safe_f1': 0,
+                       'compliant_precision': 0, 'compliant_recall': 0, 'compliant_f1': 0,
+                       'noncompliant_precision': 0, 'noncompliant_recall': 0,
+                       'noncompliant_f1': 0, 'average_precision': 0, 'average_recall': 0,
+                       'average_f1': 0, 'overall_precision': 0, 'majority_count': 0}
 
     for fold in range(10):
         print("\nFOLD", fold + 1)
@@ -153,11 +151,12 @@ def main():
     data = read_data("HW3_Data.txt")
     random.shuffle(data)
 
+    print(find_elbow(data))
+
     for fold in range(10):
         test_data, learning_data = split_fold(data, fold)
 
-        clusters = build_clusters(learning_data)
-        print(clusters)
+        clusters = build_clusters(learning_data, 3)
 
 
 if __name__ == '__main__':

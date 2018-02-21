@@ -4,10 +4,6 @@ k_means.py
 import math
 
 
-def decide_k():
-    return 3
-
-
 def centroid(cluster):
     distances = 0
     speeds = 0
@@ -25,8 +21,7 @@ def euclidean_distance(p, q):
     return math.sqrt((q[0] - p[0])**2 + (q[1] - p[1])**2)
 
 
-def build_clusters(data):
-    k = decide_k()
+def build_clusters(data, k):
     clusters = []
     centroids = []
 
@@ -84,3 +79,29 @@ def build_clusters(data):
 
     return clusters
 
+
+def calculate_error(cluster):
+    total = 0
+    cur_centroid = centroid(cluster)
+    for instance in cluster:
+        point = (float(instance[1]), float(instance[2]))
+        deviation = euclidean_distance(cur_centroid, point)
+        total += deviation**2
+
+    return total
+
+
+def find_elbow(data):
+    results = []
+    for k in range(2, 20):
+        clusters = build_clusters(data, k)
+
+        ase = 0
+        for cluster in clusters:
+            ase += calculate_error(cluster)
+
+        ase /= len(clusters)
+        print(ase)
+        results.append(ase)
+
+    return results
