@@ -86,7 +86,7 @@ def split_fold(data, fold):
     lower_bound = (fold * len(data)) / 10
     upper_bound = ((fold + 1) * len(data)) / 10
 
-    print(lower_bound, upper_bound)
+    # print(lower_bound, upper_bound)
 
     for entry in data:
         if lower_bound <= data.index(entry) < upper_bound:
