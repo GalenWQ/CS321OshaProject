@@ -20,8 +20,8 @@ class Node:
             child = Node(feature)
             self.add_child(child)
 
-    def __str__(self):
-        return str(self.value)
+    def __repr__(self):
+        return "Node: {}".format(self.value)
 
 
 def H(vals):
@@ -85,7 +85,7 @@ def column_in_scope(node, column):
     return True
 
 
-def calculateEntropy(data, node=None):
+def calculate_entropy(data, node=None):
     safe_count = 0
     compliant_count = 0
     non_compliant_count = 0
@@ -186,7 +186,7 @@ def add_branches(data, root, depth, categories):
     root.add_possible_children(categories)
 
     for node in root.children:
-        entropy = calculateEntropy(data, node)
+        entropy = calculate_entropy(data, node)
 
         if entropy == 0 or depth > 2:
             result = calculate_best_guess(data, node)
@@ -234,7 +234,7 @@ def test_tree(test_data, root):
 
 
 def make_decision_tree(learning_data, categories):
-    entropy = calculateEntropy(learning_data)
+    entropy = calculate_entropy(learning_data)
 
     next_column = find_next_column(learning_data, entropy)
     root = Node(next_column)
