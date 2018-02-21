@@ -110,21 +110,54 @@ def main():
     # root = make_decision_tree(learning_data, categories)
     # test_tree(test_data, root)
 
+    average_results = {'safe_precision':0, 'safe_recall':0, 'safe_f1':0,
+            'compliant_precision':0, 'compliant_recall':0, 'compliant_f1':0,
+            'noncompliant_precision': 0, 'noncompliant_recall': 0,
+            'noncompliant_f1': 0, 'average_precision':0, 'average_recall':0,
+            'average_f1':0, 'overall_precision':0}
+
     for fold in range(10):
         print("\nFOLD", fold + 1)
         test_data, learning_data = split_fold(data, fold)
 
         root = make_decision_tree(learning_data, categories)
-        test_tree(test_data, root)
+        results = test_tree(test_data, root)
 
-    # data = read_data("HW3_Data.txt")
-    # random.shuffle(data)
-    #
-    # for fold in range(10):
-    #     test_data, learning_data = split_fold(data, fold)
-    #
-    #     clusters = build_clusters(learning_data)
-    #     print(clusters)
+        for key in average_results:
+            average_results[key] += results[key]
+
+    for key in average_results:
+        average_results[key] /= 10
+
+    print("\nAVERAGE OF ALL FOLDS")
+    print('______________________________________________________')
+    print("Precision (safe):", average_results['safe_precision'])
+    print("Recall (safe):", average_results['safe_recall'])
+    print("F1 (safe):", average_results['safe_f1'])
+    print('-----------------------')
+    print("Precision (compliant):", average_results['compliant_precision'])
+    print("Recall (compliant):", average_results['compliant_recall'])
+    print("F1 (compliant):", average_results['compliant_f1'])
+    print('-----------------------')
+    print("Precision (noncompliant):", average_results['noncompliant_precision'])
+    print("Recall (noncompliant):", average_results['noncompliant_recall'])
+    print("F1 (noncompliant):", average_results['noncompliant_f1'])
+    print('-----------------------')
+    print("Precision (average):", average_results['average_precision'])
+    print("Recall (average):", average_results['average_recall'])
+    print("F1 (average):", average_results['average_f1'])
+    print('-----------------------')
+    print("Precision (overall):", average_results['overall_precision'])
+    print('______________________________________________________')
+
+    data = read_data("HW3_Data.txt")
+    random.shuffle(data)
+
+    for fold in range(10):
+        test_data, learning_data = split_fold(data, fold)
+
+        clusters = build_clusters(learning_data)
+        print(clusters)
 
 
 if __name__ == '__main__':

@@ -291,8 +291,8 @@ def test_tree(test_data, root):
 
     overall_precision = (safe_true_positive + compliant_true_positive + noncompliant_true_positive) / len(test_data)
     average_precision = (safe_precision + compliant_precision + noncompliant_precision) / 3
-    overall_recall = (safe_recall + compliant_recall + noncompliant_recall) / 3
-    overall_f1 = (safe_f1 + compliant_f1 + noncompliant_f1) / 3
+    average_recall = (safe_recall + compliant_recall + noncompliant_recall) / 3
+    average_f1 = (safe_f1 + compliant_f1 + noncompliant_f1) / 3
 
     print('______________________________________________________')
     print("Precision (safe):", safe_precision)
@@ -308,12 +308,18 @@ def test_tree(test_data, root):
     print("F1 (noncompliant):", noncompliant_f1)
     print('-----------------------')
     print("Precision (average):", average_precision)
-    print("Recall (average):", overall_recall)
-    print("F1 (average):", overall_f1)
+    print("Recall (average):", average_recall)
+    print("F1 (average):", average_f1)
     print('-----------------------')
     print("Precision (overall):", overall_precision)
     print("Majority count:", majority_count)
     print('______________________________________________________')
+
+    return {'safe_precision':safe_precision, 'safe_recall':safe_recall, 'safe_f1':safe_f1,
+            'compliant_precision':compliant_precision, 'compliant_recall':compliant_recall, 'compliant_f1':compliant_f1,
+            'noncompliant_precision': noncompliant_precision, 'noncompliant_recall': noncompliant_recall,
+            'noncompliant_f1': noncompliant_f1, 'average_precision':average_precision, 'average_recall':average_recall,
+            'average_f1':average_f1, 'overall_precision':overall_precision}
 
 
 def make_decision_tree(learning_data, categories):
