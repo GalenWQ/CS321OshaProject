@@ -2,6 +2,7 @@ from k_means import (build_clusters, eval_clusters, test_clusters, find_elbow)
 import random
 
 from dec_tree import (make_decision_tree, test_tree)
+import pandas as pd
 
 
 def read_data(file_name):
@@ -78,12 +79,15 @@ def main():
     print("DECISION TREES")
     print("******************************************************")
 
+    all_results = []
+
     for fold in range(10):
         print("\nFOLD", fold + 1)
         test_data, learning_data = split_fold(data, fold)
 
         root = make_decision_tree(learning_data, categories)
         results = test_tree(test_data, root)
+        all_results.append(results)
 
         for key in average_results:
             average_results[key] += results[key]
