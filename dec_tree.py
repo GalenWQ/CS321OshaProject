@@ -29,9 +29,10 @@ def H(vals):
 
     acc = 0
     for i in vals:
-        percent = i / total
-        if percent != 0:
-            acc += percent * math.log2(percent)
+        if total != 0:
+            percent = i / total
+            if percent != 0:
+                acc += percent * math.log2(percent)
 
     return -1 * acc
 
@@ -46,7 +47,7 @@ def find_baseline(data):
             safe_count += 1
         elif entry[4] == 'Compliant':
             compliant_count += 1
-        elif entry[4] == 'NonCompliant' or entry[4] == 'Non-Compliant':
+        elif entry[4] == 'NonCompliant':
             non_compliant_count += 1
         else:
             print("ERROR: incorrectly formatted compliance value", entry[4])
@@ -96,7 +97,7 @@ def calculate_entropy(data, node=None):
                 safe_count += 1
             elif entry[4] == 'Compliant':
                 compliant_count += 1
-            elif entry[4] == 'NonCompliant' or entry[4] == 'Non-Compliant':
+            elif entry[4] == 'NonCompliant':
                 non_compliant_count += 1
 
     entropy = H([safe_count, compliant_count, non_compliant_count])
@@ -115,7 +116,7 @@ def calculate_best_guess(data, node):
                 safe_count += 1
             elif entry[4] == 'Compliant':
                 compliant_count += 1
-            elif entry[4] == 'NonCompliant' or entry[4] == 'Non-Compliant':
+            elif entry[4] == 'NonCompliant':
                 non_compliant_count += 1
 
     maximum = max(safe_count, compliant_count, non_compliant_count)
@@ -146,7 +147,7 @@ def find_info_gain(data, baseline_entropy, column, node=None):
                 matrix[index][0] += 1
             elif item[4] == 'Compliant':
                 matrix[index][1] += 1
-            elif item[4] == 'NonCompliant' or item[4] == 'Non-Compliant':
+            elif item[4] == 'NonCompliant':
                 matrix[index][2] += 1
 
     entropy = 0
@@ -208,8 +209,26 @@ def print_tree(root, indent):
 
 
 def test_tree(test_data, root):
-    correct = 0
-    incorrect = 0
+    actual_safe = 0
+    safe_true_positive = 0
+    safe_false_positive = 0
+    safe_precision = 1.0
+    safe_recall = 1.0
+    safe_f1 = 1.0
+
+    actual_compliant = 0
+    compliant_true_positive = 0
+    compliant_false_positive = 0
+    compliant_precision = 1.0
+    compliant_recall = 1.0
+    compliant_f1 = 1.0
+
+    actual_noncompliant = 0
+    noncompliant_true_positive = 0
+    noncompliant_false_positive = 0
+    noncompliant_precision = 1.0
+    noncompliant_recall = 1.0
+    noncompliant_f1 = 1.0
 
     for item in test_data:
         cur_node = root
@@ -221,16 +240,80 @@ def test_tree(test_data, root):
                     cur_node = child.children[0]
 
         prediction = cur_node.value
-        if prediction == item[4]:
-            correct += 1
+
+        if item[4] == 'Safe':
+            actual_safe += 1
+            if prediction == 'Safe':
+                safe_true_positive += 1
+            elif prediction == 'Compliant':
+                compliant_false_positive += 1
+            elif prediction == 'NonCompliant':
+                noncompliant_false_positive += 1
+        elif item[4] == 'Compliant':
+            actual_compliant += 1
+            if prediction == 'Safe':
+                safe_false_positive += 1
+            elif prediction == 'Compliant':
+                compliant_true_positive += 1
+            elif prediction == 'NonCompliant':
+                noncompliant_false_positive += 1
+        elif item[4] == 'NonCompliant':
+            actual_noncompliant += 1
+            if prediction == 'Safe':
+                safe_false_positive += 1
+            elif prediction == 'Compliant':
+                compliant_false_positive += 1
+            elif prediction == 'NonCompliant':
+                noncompliant_true_positive += 1
         else:
-            incorrect += 1
+            print("Something weird happened:", item[4])
+            quit()
+
+    if actual_safe > 0:
+        if safe_true_positive + safe_false_positive > 0:
+            safe_precision = safe_true_positive / (safe_true_positive + safe_false_positive)
+        safe_recall = safe_true_positive / actual_safe
+        safe_f1 = (2 * safe_recall * safe_precision) / (safe_recall + safe_precision)
+
+    if actual_compliant > 0:
+        if compliant_true_positive + compliant_false_positive > 0:
+            compliant_precision = compliant_true_positive / (compliant_true_positive + compliant_false_positive)
+        compliant_recall = compliant_true_positive / actual_compliant
+        compliant_f1 = (2 * compliant_recall * compliant_precision) / (compliant_recall + compliant_precision)
+
+    if actual_noncompliant > 0:
+        if noncompliant_true_positive + noncompliant_false_positive > 0:
+            noncompliant_precision = noncompliant_true_positive / (noncompliant_true_positive + noncompliant_false_positive)
+        noncompliant_recall = noncompliant_true_positive / actual_noncompliant
+        noncompliant_f1 = (2 * noncompliant_recall * noncompliant_precision) / (noncompliant_recall + noncompliant_precision)
 
     majority_count = find_baseline(test_data)
 
-    print("majority count:", majority_count)
-    print("correct percentage:", correct / (correct + incorrect))
+    overall_precision = (safe_true_positive + compliant_true_positive + noncompliant_true_positive) / len(test_data)
+    average_precision = (safe_precision + compliant_precision + noncompliant_precision) / 3
+    overall_recall = (safe_recall + compliant_recall + noncompliant_recall) / 3
+    overall_f1 = (safe_f1 + compliant_f1 + noncompliant_f1) / 3
+
+    print('______________________________________________________')
+    print("Precision (safe):", safe_precision)
+    print("Recall (safe):", safe_recall)
+    print("F1 (safe):", safe_f1)
     print('-----------------------')
+    print("Precision (compliant):", compliant_precision)
+    print("Recall (compliant):", compliant_recall)
+    print("F1 (compliant):", compliant_f1)
+    print('-----------------------')
+    print("Precision (noncompliant):", noncompliant_precision)
+    print("Recall (noncompliant):", noncompliant_recall)
+    print("F1 (noncompliant):", noncompliant_f1)
+    print('-----------------------')
+    print("Precision (average):", average_precision)
+    print("Recall (average):", overall_recall)
+    print("F1 (average):", overall_f1)
+    print('-----------------------')
+    print("Precision (overall):", overall_precision)
+    print("Majority count:", majority_count)
+    print('______________________________________________________')
 
 
 def make_decision_tree(learning_data, categories):
@@ -241,6 +324,6 @@ def make_decision_tree(learning_data, categories):
 
     add_branches(learning_data, root, 1, categories)
 
-    # printTree(root, 0)
+    # print_tree(root, 0)
 
     return root

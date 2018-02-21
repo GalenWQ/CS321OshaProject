@@ -12,6 +12,8 @@ def read_data(file_name):
         for line in data_file:
             split_line = line.split()
             if split_line[0] != "HeatMiser_ID":
+                if split_line[4] == 'Non-Compliant':
+                    split_line[4] = 'NonCompliant'
                 data.append(split_line)
 
     return data
@@ -103,20 +105,26 @@ def main():
     categories = [0, speed_categories, distance_categories, location_categories]
     random.shuffle(data)
 
+    # test_data, learning_data = split_fold(data, 6)
+    #
+    # root = make_decision_tree(learning_data, categories)
+    # test_tree(test_data, root)
+
     for fold in range(10):
+        print("\nFOLD", fold + 1)
         test_data, learning_data = split_fold(data, fold)
 
         root = make_decision_tree(learning_data, categories)
         test_tree(test_data, root)
 
-    data = read_data("HW3_Data.txt")
-    random.shuffle(data)
-
-    for fold in range(10):
-        test_data, learning_data = split_fold(data, fold)
-
-        clusters = build_clusters(learning_data)
-        print(clusters)
+    # data = read_data("HW3_Data.txt")
+    # random.shuffle(data)
+    #
+    # for fold in range(10):
+    #     test_data, learning_data = split_fold(data, fold)
+    #
+    #     clusters = build_clusters(learning_data)
+    #     print(clusters)
 
 
 if __name__ == '__main__':

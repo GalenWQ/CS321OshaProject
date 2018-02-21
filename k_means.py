@@ -79,7 +79,7 @@ def build_clusters(data):
                         centroids[updated_cluster] = centroid(clusters[updated_cluster])
                     done = False
 
-        if loops > 20:
+        if loops > 50:
             done = True
 
     return clusters
