@@ -149,6 +149,7 @@ def main():
 
     print('______________________________________________________')
     print("AVERAGE CLASSIFICATION ACCURACY ACROSS ALL FOLDS:", avg_accuracy)
+
     p = c_plotter.make_plot()
     p.savefig('images/clusters.png')
 
