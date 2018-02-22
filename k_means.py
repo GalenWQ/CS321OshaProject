@@ -81,29 +81,65 @@ def build_clusters(data, k):
 
 
 def eval_clusters(clusters):
-    total_length = 0
     for cluster in clusters:
-        safe = 0
-        compliant = 0
-        noncompliant = 0
-
-        for item in cluster:
-            if item[4] == 'Safe':
-                safe += 1
-            elif item[4] == 'Compliant':
-                compliant += 1
-            elif item[4] == 'NonCompliant':
-                noncompliant += 1
+        print('-----------------------')
+        print("\nCLUSTER", clusters.index(cluster) + 1)
+        safe, compliant, noncompliant = eval_cluster(cluster)
 
         total = safe + compliant + noncompliant
 
-        print('-----------------------')
-        print("\nCLUSTER", clusters.index(cluster) + 1)
         print("Safe:", safe / total)
         print("Compliant:", compliant / total)
         print("NonCompliant:", noncompliant / total)
-        total_length += len(cluster)
-    print("\nTotal length:", total_length)
+
+
+def eval_cluster(cluster):
+    safe = 0
+    compliant = 0
+    noncompliant = 0
+
+    for item in cluster:
+        if item[4] == 'Safe':
+            safe += 1
+        elif item[4] == 'Compliant':
+            compliant += 1
+        elif item[4] == 'NonCompliant':
+            noncompliant += 1
+
+    return safe, compliant, noncompliant
+
+
+def test_clusters(clusters, test_data):
+    correct = 0
+    incorrect = 0
+
+    for item in test_data:
+        smallest_distance = 1000
+        closest_cluster = None
+        for cluster in clusters:
+            centroid_distance = euclidean_distance(centroid(cluster), (float(item[1]), float(item[2])))
+            if centroid_distance < smallest_distance:
+                smallest_distance = centroid_distance
+                closest_cluster = cluster
+
+        guess = eval_cluster(closest_cluster)
+        if max(guess) == guess[0]:
+            result = 'Safe'
+        elif max(guess) == guess[1]:
+            result = 'Compliant'
+        else:
+            result = 'NonCompliant'
+
+        if result == item[4]:
+            correct += 1
+        else:
+            incorrect += 1
+
+    accuracy = correct / (correct + incorrect)
+
+    print("CLASSIFICATION ACCURACY:", accuracy)
+
+    return accuracy
 
 
 def calculate_error(cluster):

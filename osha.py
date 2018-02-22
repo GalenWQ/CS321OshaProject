@@ -1,4 +1,4 @@
-from k_means import (build_clusters, eval_clusters, find_elbow)
+from k_means import (build_clusters, eval_clusters, test_clusters, find_elbow)
 import random
 
 from dec_tree import (make_decision_tree, test_tree)
@@ -74,6 +74,10 @@ def main():
                        'noncompliant_f1': 0, 'average_precision': 0, 'average_recall': 0,
                        'average_f1': 0, 'overall_precision': 0, 'majority_count': 0}
 
+    print("******************************************************")
+    print("DECISION TREES")
+    print("******************************************************")
+
     for fold in range(10):
         print("\nFOLD", fold + 1)
         test_data, learning_data = split_fold(data, fold)
@@ -113,6 +117,12 @@ def main():
 
     # print(find_elbow(data))
 
+    print("******************************************************")
+    print("K-MEANS CLUSTERING")
+    print("******************************************************")
+
+    avg_accuracy = 0
+
     for fold in range(10):
         print("\nFOLD", fold + 1)
         test_data, learning_data = split_fold(data, fold)
@@ -120,7 +130,13 @@ def main():
         clusters = build_clusters(learning_data, 8)
         eval_clusters(clusters)
         print('______________________________________________________')
+        accuracy = test_clusters(clusters, test_data)
+        avg_accuracy += accuracy
 
+    avg_accuracy /= 10
+
+    print('______________________________________________________')
+    print("AVERAGE CLASSIFICATION ACCURACY ACROSS ALL FOLDS:", avg_accuracy)
 
 if __name__ == '__main__':
     main()
