@@ -2,6 +2,8 @@ from k_means import (build_clusters, eval_clusters, test_clusters, find_elbow)
 import random
 
 from dec_tree import (make_decision_tree, test_tree)
+import pandas as pd
+from plotting import ClusterPlotter
 
 
 def read_data(file_name):
@@ -78,15 +80,21 @@ def main():
     print("DECISION TREES")
     print("******************************************************")
 
+    all_results = []
+
     for fold in range(10):
         print("\nFOLD", fold + 1)
         test_data, learning_data = split_fold(data, fold)
 
         root = make_decision_tree(learning_data, categories)
         results = test_tree(test_data, root)
+        all_results.append(results)
 
         for key in average_results:
             average_results[key] += results[key]
+
+        df = pd.DataFrame(all_results)
+        df.to_json('all_results.json')
 
     for key in average_results:
         average_results[key] /= 10
@@ -123,11 +131,15 @@ def main():
 
     avg_accuracy = 0
 
+    c_plotter = ClusterPlotter()
+
     for fold in range(10):
         print("\nFOLD", fold + 1)
         test_data, learning_data = split_fold(data, fold)
 
         clusters = build_clusters(learning_data, 8)
+        c_plotter.add_cluster_list(clusters)
+
         eval_clusters(clusters)
         print('______________________________________________________')
         accuracy = test_clusters(clusters, test_data)
@@ -137,6 +149,8 @@ def main():
 
     print('______________________________________________________')
     print("AVERAGE CLASSIFICATION ACCURACY ACROSS ALL FOLDS:", avg_accuracy)
+    p = c_plotter.make_plot()
+    p.savefig('images/clusters.png')
 
 if __name__ == '__main__':
     main()
