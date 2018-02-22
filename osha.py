@@ -92,6 +92,9 @@ def main():
         for key in average_results:
             average_results[key] += results[key]
 
+        df = pd.DataFrame(all_results)
+        df.to_json('all_results.json')
+
     for key in average_results:
         average_results[key] /= 10
 
