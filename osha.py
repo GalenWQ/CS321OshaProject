@@ -3,6 +3,7 @@ import random
 
 from dec_tree import (make_decision_tree, test_tree)
 import pandas as pd
+from plotting import ClusterPlotter
 
 
 def read_data(file_name):
@@ -130,11 +131,15 @@ def main():
 
     avg_accuracy = 0
 
+    cp = ClusterPlotter()
+
     for fold in range(10):
         print("\nFOLD", fold + 1)
         test_data, learning_data = split_fold(data, fold)
 
         clusters = build_clusters(learning_data, 8)
+        cp.add_cluster_list(clusters)
+
         eval_clusters(clusters)
         print('______________________________________________________')
         accuracy = test_clusters(clusters, test_data)

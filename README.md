@@ -1,6 +1,8 @@
+# HW #3: HeatMiser meets OSHA
 
-Graphing
-http://graphviz.readthedocs.io/en/stable/manual.html
+Galen Berger-Fletcher,
+Dustin Michels
 
-Sklearn
-http://scikit-learn.org/stable/modules/model_evaluation.html
+
+## How to run
+
