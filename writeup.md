@@ -17,22 +17,21 @@ documentclass: scrartcl
 
 ### Part I: Decision Tree
 
-We implemented a decision tree from scratch in pure python, as well as using scikit learn.
-
-Our own implementation had a precision that fluctuated within the range from 80-90%.
+We implemented a decision tree from scratch in pure python, as well as using scikit learn. Our own implementation had a precision that fluctuated within the range from 80-90%.
 
 ![Overall precision for each fold compared to baseline](images/dec_tree_prec.png)
 
 Here is each metric for each class.
-![](images/dec_tree_all_metrics.png)
+
+![All three performance metrics for each class](images/dec_tree_all_metrics.png)
 
 The Scikit Learn implementation consistently obtained f1 scores around 99%.
 
 ## Part II: K-Means Clustering
 
-We determined the optimal k-value using an elbow implementation.
+We determined the optimal k-value using an elbow implementation to be 4 clusters.
 
-![](images/elbow.png)
+![Elbow graph](images/elbow.png)
 
 Here are the clusters over 10 folds:
 ![](images/clusters.png)
