@@ -131,14 +131,14 @@ def main():
 
     avg_accuracy = 0
 
-    cp = ClusterPlotter()
+    c_plotter = ClusterPlotter()
 
     for fold in range(10):
         print("\nFOLD", fold + 1)
         test_data, learning_data = split_fold(data, fold)
 
         clusters = build_clusters(learning_data, 8)
-        cp.add_cluster_list(clusters)
+        c_plotter.add_cluster_list(clusters)
 
         eval_clusters(clusters)
         print('______________________________________________________')
@@ -149,6 +149,8 @@ def main():
 
     print('______________________________________________________')
     print("AVERAGE CLASSIFICATION ACCURACY ACROSS ALL FOLDS:", avg_accuracy)
+    p = c_plotter.make_plot()
+    p.savefig('images/clusters.png')
 
 if __name__ == '__main__':
     main()
