@@ -3,7 +3,7 @@ import random
 
 from dec_tree import (make_decision_tree, test_tree)
 import pandas as pd
-from plotting import ClusterPlotter
+from plotting import ClusterPlotter, TreePlotter
 
 
 def read_data(file_name):
@@ -93,8 +93,13 @@ def main():
         for key in average_results:
             average_results[key] += results[key]
 
-        df = pd.DataFrame(all_results)
-        df.to_json('all_results.json')
+    tree_plotter = TreePlotter(all_results)
+
+    p = tree_plotter.make_precision_plot()
+    p.savefig('images/dec_tree_prec.png')
+
+    p = tree_plotter.make_all_metrics_plot()
+    p.savefig('images/dec_tree_all_metrics.png')
 
     for key in average_results:
         average_results[key] /= 10
