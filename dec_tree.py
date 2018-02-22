@@ -299,9 +299,11 @@ def test_tree(test_data, root):
 
     if actual_noncompliant > 0:
         if noncompliant_true_positive + noncompliant_false_positive > 0:
-            noncompliant_precision = noncompliant_true_positive / (noncompliant_true_positive + noncompliant_false_positive)
+            noncompliant_precision = noncompliant_true_positive / (
+                noncompliant_true_positive + noncompliant_false_positive)
         noncompliant_recall = noncompliant_true_positive / actual_noncompliant
-        noncompliant_f1 = (2 * noncompliant_recall * noncompliant_precision) / (noncompliant_recall + noncompliant_precision)
+        noncompliant_f1 = (2 * noncompliant_recall * noncompliant_precision) / (
+            noncompliant_recall + noncompliant_precision)
 
     majority_count = find_baseline(test_data)
 
@@ -331,11 +333,13 @@ def test_tree(test_data, root):
     print("Majority count:", majority_count)
     print('______________________________________________________')
 
-    return {'safe_precision':safe_precision, 'safe_recall':safe_recall, 'safe_f1':safe_f1,
-            'compliant_precision':compliant_precision, 'compliant_recall':compliant_recall, 'compliant_f1':compliant_f1,
+    return {'safe_precision': safe_precision, 'safe_recall': safe_recall, 'safe_f1': safe_f1,
+            'compliant_precision': compliant_precision, 'compliant_recall': compliant_recall,
+            'compliant_f1': compliant_f1,
             'noncompliant_precision': noncompliant_precision, 'noncompliant_recall': noncompliant_recall,
-            'noncompliant_f1': noncompliant_f1, 'average_precision':average_precision, 'average_recall':average_recall,
-            'average_f1':average_f1, 'overall_precision':overall_precision, 'majority_count':majority_count}
+            'noncompliant_f1': noncompliant_f1, 'average_precision': average_precision,
+            'average_recall': average_recall,
+            'average_f1': average_f1, 'overall_precision': overall_precision, 'majority_count': majority_count}
 
 
 def make_decision_tree(learning_data, categories):

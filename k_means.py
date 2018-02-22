@@ -80,6 +80,32 @@ def build_clusters(data, k):
     return clusters
 
 
+def eval_clusters(clusters):
+    total_length = 0
+    for cluster in clusters:
+        safe = 0
+        compliant = 0
+        noncompliant = 0
+
+        for item in cluster:
+            if item[4] == 'Safe':
+                safe += 1
+            elif item[4] == 'Compliant':
+                compliant += 1
+            elif item[4] == 'NonCompliant':
+                noncompliant += 1
+
+        total = safe + compliant + noncompliant
+
+        print('-----------------------')
+        print("\nCLUSTER", clusters.index(cluster) + 1)
+        print("Safe:", safe / total)
+        print("Compliant:", compliant / total)
+        print("NonCompliant:", noncompliant / total)
+        total_length += len(cluster)
+    print("\nTotal length:", total_length)
+
+
 def calculate_error(cluster):
     total = 0
     cur_centroid = centroid(cluster)
@@ -101,7 +127,6 @@ def find_elbow(data):
             ase += calculate_error(cluster)
 
         ase /= len(clusters)
-        print(ase)
         results.append(ase)
 
     return results

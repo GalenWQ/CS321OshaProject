@@ -1,4 +1,4 @@
-from k_means import *
+from k_means import (build_clusters, eval_clusters, find_elbow)
 import random
 
 from dec_tree import (make_decision_tree, test_tree)
@@ -17,43 +17,8 @@ def read_data(file_name):
     return data
 
 
-# def findMax(data, column):
-#     max = 0
-#     for item in data:
-#         val = float(item[column])
-#         if val > max:
-#             max = val
-#
-#     return max
-
 def bin_data(data):
-    # maxDistance = int(findMax(data, 1)) + 1
-    #
-    # while maxDistance % distanceBins != 0:
-    #     maxDistance += 1
-    #
-    # distanceSplit = maxDistance / distanceBins
-    #
-    # maxSpeed = int(findMax(data, 2)) + 1
-    #
-    # while maxSpeed % speedBins != 0:
-    #     maxSpeed += 1
-    #
-    # speedSplit = maxSpeed / speedBins
-
     for entry in data:
-        # for i in range(int(distanceSplit), int(maxDistance) + 1,
-        #                int(distanceSplit)):
-        #     if float(entry[1]) <= i:
-        #         entry[1] = "<" + str(i)
-        #         break
-        #
-        # for i in range(int(speedSplit), int(maxSpeed) + 1,
-        #                int(speedSplit)):
-        #     if float(entry[2]) <= i:
-        #         entry[2] = "<" + str(i)
-        #         break
-
         if float(entry[1]) < 100:
             entry[1] = 'Short'
         else:
@@ -103,11 +68,6 @@ def main():
     categories = [0, speed_categories, distance_categories, location_categories]
     random.shuffle(data)
 
-    # test_data, learning_data = split_fold(data, 6)
-    #
-    # root = make_decision_tree(learning_data, categories)
-    # test_tree(test_data, root)
-
     average_results = {'safe_precision': 0, 'safe_recall': 0, 'safe_f1': 0,
                        'compliant_precision': 0, 'compliant_recall': 0, 'compliant_f1': 0,
                        'noncompliant_precision': 0, 'noncompliant_recall': 0,
@@ -151,12 +111,15 @@ def main():
     data = read_data("HW3_Data.txt")
     random.shuffle(data)
 
-    print(find_elbow(data))
+    # print(find_elbow(data))
 
     for fold in range(10):
+        print("\nFOLD", fold + 1)
         test_data, learning_data = split_fold(data, fold)
 
-        clusters = build_clusters(learning_data, 3)
+        clusters = build_clusters(learning_data, 8)
+        eval_clusters(clusters)
+        print('______________________________________________________')
 
 
 if __name__ == '__main__':
