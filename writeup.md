@@ -13,8 +13,9 @@ CS.321 AI
 
 We implemented a decision tree from scratch in pure python, as well as using scikit learn.
 
-Our own implementation
-![](images/dec_tree_prec.png) had that fluctuated within the range from 80-90%.
+Our own implementation had a precision that fluctuated within the range from 80-90%.
+
+![](images/dec_tree_prec.png)
 
 The Scikit Learn implementation consistently obtained f1 scores around 99%.
 
