@@ -142,7 +142,7 @@ def main():
         print("\nFOLD", fold + 1)
         test_data, learning_data = split_fold(data, fold)
 
-        clusters = build_clusters(learning_data, 8)
+        clusters = build_clusters(learning_data, 4)
         c_plotter.add_cluster_list(clusters)
 
         eval_clusters(clusters)
