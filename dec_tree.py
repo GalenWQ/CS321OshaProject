@@ -10,10 +10,13 @@ class Node:
         self.children = []
 
     def add_child(self, child):
+        """Takes a Node and adds it as a child."""
         self.children.append(child)
         child.parent = self
 
     def add_possible_children(self, categories):
+        """Called on a Node representing a column (distance, speed, etc), adds the unique features in that column as
+        children (i.e. Office and Warehouse if called from a Node representing location)."""
         column = self.value
 
         for feature in categories[column]:
@@ -25,6 +28,7 @@ class Node:
 
 
 def H(vals):
+    """Calculates the entropy of a list of numeric values."""
     total = sum(vals)
 
     acc = 0
@@ -38,6 +42,7 @@ def H(vals):
 
 
 def find_baseline(data):
+    """Calculates the majority count of the OSHA column."""
     safe_count = 0
     compliant_count = 0
     non_compliant_count = 0
@@ -62,6 +67,7 @@ def find_baseline(data):
 
 
 def item_in_scope(node, item):
+    """Traverses the tree from node to root to determine if the item of data falls under the current node."""
     cur_node = node
     while cur_node is not None:
         feature = node.value
@@ -75,6 +81,7 @@ def item_in_scope(node, item):
 
 
 def column_in_scope(node, column):
+    """Traverses the tree from node to root to determine if column falls under the current node."""
     cur_node = node
     while cur_node is not None:
         next_column = cur_node.parent.value
@@ -87,6 +94,7 @@ def column_in_scope(node, column):
 
 
 def calculate_entropy(data, node=None):
+    """Given a position in the tree (node), calculates the entropy of the data."""
     safe_count = 0
     compliant_count = 0
     non_compliant_count = 0
@@ -106,6 +114,7 @@ def calculate_entropy(data, node=None):
 
 
 def calculate_best_guess(data, node):
+    """Calculuates the majority count given the current position in the tree."""
     safe_count = 0
     compliant_count = 0
     non_compliant_count = 0
@@ -130,6 +139,7 @@ def calculate_best_guess(data, node):
 
 
 def find_info_gain(data, baseline_entropy, column, node=None):
+    """Calculates the info gain associated with a particular column given a position in the tree."""
     matrix = []
 
     possibilities = []
@@ -163,6 +173,7 @@ def find_info_gain(data, baseline_entropy, column, node=None):
 
 
 def find_info_gains(data, entropy, node=None):
+    """Calculates the info gain for all possible next columns given a position in the tree."""
     info_gains = [0]
 
     for column in range(1, 4):
@@ -176,6 +187,7 @@ def find_info_gains(data, entropy, node=None):
 
 
 def find_next_column(data, entropy, node=None):
+    """Finds the column with the highest info gain given the current position in the tree."""
     info_gains = find_info_gains(data, entropy, node)
     max_info_gain = max(info_gains)
     next_column = info_gains.index(max_info_gain)
@@ -184,6 +196,7 @@ def find_next_column(data, entropy, node=None):
 
 
 def add_branches(data, root, depth, categories):
+    """Recursively populates the decision tree, with maximum depth 3."""
     root.add_possible_children(categories)
 
     for node in root.children:
@@ -202,6 +215,8 @@ def add_branches(data, root, depth, categories):
 
 
 def print_tree(root, indent):
+    """Prints a simple representation of the tree to the screen.
+    Numbers represent the corresponding column in the data."""
     print("\t" * indent, root)
     if root:
         for child in root.children:
@@ -209,6 +224,7 @@ def print_tree(root, indent):
 
 
 def test_tree(test_data, root):
+    """Tests the tree with the specified root on the test data and returns a dict of results."""
     actual_safe = 0
     safe_true_positive = 0
     safe_false_positive = 0
@@ -323,6 +339,7 @@ def test_tree(test_data, root):
 
 
 def make_decision_tree(learning_data, categories):
+    """Creates a decision tree from learning data and a list of possible categories/features for each column."""
     entropy = calculate_entropy(learning_data)
 
     next_column = find_next_column(learning_data, entropy)
